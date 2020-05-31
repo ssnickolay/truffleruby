@@ -79,8 +79,8 @@ public class ModuleFields extends ModuleChain implements ObjectGraphNode {
 
     /** Whether this is a refinement module (R), created by #refine */
     private boolean isRefinement = false;
-    /** The class (C) refined by this refinement module */
-    private DynamicObject refinedClass;
+    /** The module or class (C) refined by this refinement module */
+    private DynamicObject refinedModule;
     /** The namespace module (M) around the #refine call */
     private DynamicObject refinementNamespace;
 
@@ -477,7 +477,7 @@ public class ModuleFields extends ModuleChain implements ObjectGraphNode {
         }
 
         if (isRefinement()) {
-            return Layouts.MODULE.getFields(getRefinedClass()).deepMethodSearch(context, name);
+            return Layouts.MODULE.getFields(getRefinedModule()).deepMethodSearch(context, name);
         } else {
             return null;
         }
@@ -601,14 +601,14 @@ public class ModuleFields extends ModuleChain implements ObjectGraphNode {
         return isRefinement;
     }
 
-    public void setupRefinementModule(DynamicObject refinedClass, DynamicObject refinementNamespace) {
+    public void setupRefinementModule(DynamicObject refinedModule, DynamicObject refinementNamespace) {
         this.isRefinement = true;
-        this.refinedClass = refinedClass;
+        this.refinedModule = refinedModule;
         this.refinementNamespace = refinementNamespace;
     }
 
-    public DynamicObject getRefinedClass() {
-        return refinedClass;
+    public DynamicObject getRefinedModule() {
+        return refinedModule;
     }
 
     public DynamicObject getRefinementNamespace() {
