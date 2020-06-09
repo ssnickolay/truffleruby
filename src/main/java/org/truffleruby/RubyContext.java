@@ -406,6 +406,7 @@ public class RubyContext {
 
     @TruffleBoundary
     public Object send(Object object, String methodName, Object... arguments) {
+//        System.out.println("======== RubyConext call send: " + methodName);
         final InternalMethod method = ModuleOperations
                 .lookupMethodUncached(coreLibrary.getMetaClass(object), methodName, null);
         if (method == null || method.isUndefined()) {

@@ -137,12 +137,19 @@ public abstract class DSLUncachedDispatchNode extends RubyBaseNode {
             assert !RubyGuards.isForeignObject(receiver) : "RESPOND_TO_METHOD not supported on foreign objects";
         }
 
+
         final InternalMethod method = lookupMethodNode.lookup(
                 (VirtualFrame) frame,
                 receiver,
                 methodName,
                 cachedIgnoreVisibility,
                 cachedOnlyCallPublic);
+//
+//        if (methodName.equals(new String("foo")) || methodName.equals(new String("bar"))) {
+//            System.out.println("======== DSLUncahed node: " + lookupMethodNode);
+//            System.out.println("======== DSLUncahed name: " + methodName);
+//            System.out.println("======== DSLUncahed method: " + method);
+//        }
 
         if (method != null) {
             if (cachedDispatchAction == DispatchAction.CALL_METHOD) {

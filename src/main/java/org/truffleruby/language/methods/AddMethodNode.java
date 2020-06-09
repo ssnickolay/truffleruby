@@ -47,7 +47,8 @@ public abstract class AddMethodNode extends RubyContextNode {
 
         if (Layouts.MODULE.getFields(module).isRefinement()) {
             final DynamicObject refinedModule = Layouts.MODULE.getFields(module).getRefinedModule();
-            addRefinedMethodEntry(refinedModule, method, visibility);
+            // we don't need this because we get all methods from R ancestors
+//            addRefinedMethodEntry(refinedModule, method, visibility);
         }
 
         doAddMethod(module, method, visibility);
@@ -55,13 +56,16 @@ public abstract class AddMethodNode extends RubyContextNode {
 
     @TruffleBoundary
     private void addRefinedMethodEntry(DynamicObject module, InternalMethod method, Visibility visibility) {
+        System.out.println("======== AddRefinedMethodEntry: " + method);
         final MethodLookupResult result = ModuleOperations.lookupMethodCached(module, method.getName(), null);
         final InternalMethod originalMethod = result.getMethod();
         if (originalMethod == null) {
+            System.out.println("======== AddRefinedMethodEntry Mark as REFINED: " + method);
             doAddMethod(module, method.withRefined(true).withOriginalMethod(null), visibility);
         } else if (originalMethod.isRefined()) {
             // Already marked as refined
         } else {
+            System.out.println("======== AddRefinedMethodEntry Add as refinedddd: " + method);
             doAddMethod(module, originalMethod.withRefined(true).withOriginalMethod(originalMethod), visibility);
         }
     }

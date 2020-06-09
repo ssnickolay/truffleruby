@@ -2154,6 +2154,8 @@ public abstract class ModuleNodes {
                     null,
                     this);
             final ModuleFields refinementFields = Layouts.MODULE.getFields(refinement);
+            // add all moduleToRefine's (C) ancestors to the new refinement (R)
+            refinementFields.include(getContext(), this, moduleToRefine);
             refinementFields.setupRefinementModule(moduleToRefine, namespace);
             return refinement;
         }

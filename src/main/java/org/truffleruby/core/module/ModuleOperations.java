@@ -392,73 +392,272 @@ public abstract class ModuleOperations {
         }
         return definedMethods;
     }
+//
+//    @TruffleBoundary
+//    public static MethodLookupResult lookupMethodCached(DynamicObject module, String name,
+//            DeclarationContext declarationContext) {
+//        final ArrayList<Assumption> assumptions = new ArrayList<>();
+//
+//        // Look in ancestors
+////        if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//            System.out.println("======== Look in ancestors: " + name);
+////        }
+//        final Iterable<DynamicObject> ancestors = Layouts.MODULE.getFields(module).ancestors();
+//        for (DynamicObject ancestor : ancestors) {
+//            final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+//            assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//            final InternalMethod method = fields.getMethod(name);
+////            if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//                System.out.println("Ancestor: " + ancestor);
+//                System.out.println("Fields isRefinement: " + fields.isRefinement());
+//                System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+//                System.out.println("Fields methods: " + fields.getMethods());
+//                System.out.println("Found method: " + method);
+////            }
+//
+////            if (name.equals(new String("foo"))) {
+////                System.out.println("I'm a here FOO: " + name);
+////            }
+////            if (name.equals(new String("bar"))) {
+////                System.out.println("I'm a here bar: " + name);
+////            }
+//            if (method != null) {
+//                if (method.isRefined()) {
+//                    System.out.println("I'm a refinement method: " + name);
+//                    if (declarationContext != null) {
+//                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
+//                        if (refinements != null) {
+//                            for (DynamicObject refinement : refinements) {
+//                                final MethodLookupResult refinedMethod = lookupMethodCached(refinement, name, null);
+//                                if (refinedMethod.isDefined()) {
+//                                    for (Assumption assumption : refinedMethod.getAssumptions()) {
+//                                        assumptions.add(assumption);
+//                                    }
+//                                    return new MethodLookupResult(refinedMethod.getMethod(), toArray(assumptions));
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (method.getOriginalMethod() != null) {
+//                        return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                    }
+//                } else {
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
+//        }
+//
+//        // Nothing found
+//        return new MethodLookupResult(null, toArray(assumptions));
+//    }
 
+//    @TruffleBoundary
+//    public static MethodLookupResult lookupMethodCached(DynamicObject module, String name,
+//                                                        DeclarationContext declarationContext) {
+//        final ArrayList<Assumption> assumptions = new ArrayList<>();
+//
+//        // Look in ancestors
+//        if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//            System.out.println("======== Look in ancestors: " + name);
+//        }
+//        if (declarationContext != null) {
+//            // try to find refinements for module
+//            final DynamicObject[] refinements = declarationContext.getRefinementsFor(module);
+//            if (refinements != null) {
+//                for (DynamicObject refinement : refinements) {
+//                    final MethodLookupResult refinedMethod = lookupMethodCached(refinement, name, null);
+//                    if (refinedMethod.isDefined()) {
+//                        for (Assumption assumption : refinedMethod.getAssumptions()) {
+//                            assumptions.add(assumption);
+//                        }
+//                        return new MethodLookupResult(refinedMethod.getMethod(), toArray(assumptions));
+//                    }
+//                }
+//            } else {
+//                return lookupMethodCached(module, name, null);
+//            }
+//        } else {
+//            final Iterable<DynamicObject> ancestors = Layouts.MODULE.getFields(module).ancestors();
+//            for (DynamicObject ancestor : ancestors) {
+//                final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+//                assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                final InternalMethod method = fields.getMethod(name);
+//                if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//                    System.out.println("Ancestor: " + ancestor);
+//                    System.out.println("Fields isRefinement: " + fields.isRefinement());
+//                    System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+//                    System.out.println("Fields methods: " + fields.getMethods());
+//                    System.out.println("Found method: " + method);
+//                }
+//
+//                if (method != null) {
+//                    if (method.getOriginalMethod() != null) {
+//                        return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                    }
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
+//        }
+//
+//        // Nothing found
+//        return new MethodLookupResult(null, toArray(assumptions));
+//    }
     @TruffleBoundary
     public static MethodLookupResult lookupMethodCached(DynamicObject module, String name,
-            DeclarationContext declarationContext) {
+                                                        DeclarationContext declarationContext) {
         final ArrayList<Assumption> assumptions = new ArrayList<>();
+        DynamicObject[] refinements;
 
         // Look in ancestors
+        if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+            System.out.println("======== Look in ancestors: " + name);
+        }
         for (DynamicObject ancestor : Layouts.MODULE.getFields(module).ancestors()) {
-            final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
-            assumptions.add(fields.getMethodsUnmodifiedAssumption());
-            final InternalMethod method = fields.getMethod(name);
-            if (method != null) {
-                if (method.isRefined()) {
-                    if (declarationContext != null) {
-                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
-                        if (refinements != null) {
-                            for (DynamicObject refinement : refinements) {
-                                final MethodLookupResult refinedMethod = lookupMethodCached(refinement, name, null);
-                                if (refinedMethod.isDefined()) {
-                                    for (Assumption assumption : refinedMethod.getAssumptions()) {
-                                        assumptions.add(assumption);
-                                    }
-                                    return new MethodLookupResult(refinedMethod.getMethod(), toArray(assumptions));
-                                }
+//            if (declarationContext != null) {
+                // try to find refinements for module
+//                final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
+                if ((refinements = getRefinementsFor(declarationContext, ancestor)) != null) {
+                    for (DynamicObject refinement : refinements) {
+                        // iterate by refinement ancestors
+                        final MethodLookupResult refinedMethod = lookupMethodCached(refinement, name, null);
+                        if (refinedMethod.isDefined()) {
+                            for (Assumption assumption : refinedMethod.getAssumptions()) {
+                                assumptions.add(assumption);
                             }
+                            return new MethodLookupResult(refinedMethod.getMethod(), toArray(assumptions));
                         }
                     }
-                    if (method.getOriginalMethod() != null) {
-                        return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
-                    }
                 } else {
-                    return new MethodLookupResult(method, toArray(assumptions));
+                    final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+                    assumptions.add(fields.getMethodsUnmodifiedAssumption());
+                    final InternalMethod method = fields.getMethod(name);
+                    if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+                        System.out.println("Ancestor: " + ancestor);
+                        System.out.println("Fields isRefinement: " + fields.isRefinement());
+                        System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+                        System.out.println("Fields methods: " + fields.getMethods());
+                        System.out.println("Found method: " + method);
+                    }
+
+                    if (method != null) {
+                        if (method.getOriginalMethod() != null) {
+                            return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+                        }
+                        return new MethodLookupResult(method, toArray(assumptions));
+                    }
                 }
-            }
+//            } else {
+//                final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+//                assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                final InternalMethod method = fields.getMethod(name);
+//                if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//                    System.out.println("Ancestor: " + ancestor);
+//                    System.out.println("Fields isRefinement: " + fields.isRefinement());
+//                    System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+//                    System.out.println("Fields methods: " + fields.getMethods());
+//                    System.out.println("Found method: " + method);
+//                }
+//
+//                if (method != null) {
+//                    if (method.getOriginalMethod() != null) {
+//                        return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                    }
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
         }
 
         // Nothing found
         return new MethodLookupResult(null, toArray(assumptions));
     }
+//
+//    @TruffleBoundary
+//    public static InternalMethod lookupMethodUncached(DynamicObject module, String name,
+//            DeclarationContext declarationContext) {
+//        // Look in ancestors
+//        for (DynamicObject ancestor : Layouts.MODULE.getFields(module).ancestors()) {
+//            final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+//            final InternalMethod method = fields.getMethod(name);
+//            if (method != null) {
+//                if (method.isRefined()) {
+//                    if (declarationContext != null) {
+//                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
+//                        if (refinements != null) {
+//                            for (DynamicObject refinement : refinements) {
+//                                final InternalMethod refinedMethod = lookupMethodUncached(refinement, name, null);
+//                                if (refinedMethod != null) {
+//                                    return refinedMethod;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (method.getOriginalMethod() != null) {
+//                        return method.getOriginalMethod();
+//                    }
+//                } else {
+//                    return method;
+//                }
+//            }
+//        }
+//
+//        // Nothing found
+//        return null;
+//    }
 
     @TruffleBoundary
     public static InternalMethod lookupMethodUncached(DynamicObject module, String name,
-            DeclarationContext declarationContext) {
+                                                      DeclarationContext declarationContext) {
         // Look in ancestors
+//        if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//            System.out.println("======== Look in ancestors UNCACHED: " + name);
+//        }
+        DynamicObject[] refinements;
         for (DynamicObject ancestor : Layouts.MODULE.getFields(module).ancestors()) {
-            final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
-            final InternalMethod method = fields.getMethod(name);
-            if (method != null) {
-                if (method.isRefined()) {
-                    if (declarationContext != null) {
-                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
-                        if (refinements != null) {
-                            for (DynamicObject refinement : refinements) {
-                                final InternalMethod refinedMethod = lookupMethodUncached(refinement, name, null);
-                                if (refinedMethod != null) {
-                                    return refinedMethod;
-                                }
-                            }
+//            if (declarationContext != null) {
+//                final DynamicObject[] refinements = declarationContext.getRefinementsFor(ancestor);
+                if ((refinements = getRefinementsFor(declarationContext, ancestor)) != null) {
+                    for (DynamicObject refinement : refinements) {
+                        final InternalMethod refinedMethod = lookupMethodUncached(refinement, name, null);
+                        if (refinedMethod != null) {
+                            return refinedMethod;
                         }
                     }
-                    if (method.getOriginalMethod() != null) {
-                        return method.getOriginalMethod();
+                }  else {
+                    final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+                    final InternalMethod method = fields.getMethod(name);
+//                    if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//                        System.out.println("Ancestor: " + ancestor);
+//                        System.out.println("Fields isRefinement: " + fields.isRefinement());
+//                        System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+//                        System.out.println("Fields methods: " + fields.getMethods());
+//                        System.out.println("Found method: " + method);
+//                    }
+
+                    if (method != null) {
+                        if (method.getOriginalMethod() != null) {
+                            return method.getOriginalMethod();
+                        }
+                        return method;
                     }
-                } else {
-                    return method;
                 }
-            }
+//            } else {
+//                final ModuleFields fields = Layouts.MODULE.getFields(ancestor);
+//                final InternalMethod method = fields.getMethod(name);
+////                if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+////                    System.out.println("Ancestor: " + ancestor);
+////                    System.out.println("Fields isRefinement: " + fields.isRefinement());
+////                    System.out.println("Fields getRefinedModule: " + fields.getRefinedModule());
+////                    System.out.println("Fields methods: " + fields.getMethods());
+////                    System.out.println("Found method: " + method);
+////                }
+//
+//                if (method != null) {
+//                    if (method.getOriginalMethod() != null) {
+//                        return method.getOriginalMethod();
+//                    }
+//                    return method;
+//                }
+//            }
         }
 
         // Nothing found
@@ -483,48 +682,120 @@ public abstract class ModuleOperations {
                 currentMethod.getDeclarationContext());
     }
 
+//    @TruffleBoundary
+//    private static MethodLookupResult lookupSuperMethod(DynamicObject declaringModule, String name,
+//            DynamicObject objectMetaClass, DeclarationContext declarationContext) {
+//        if (name.equals(new String("foo")) || name.equals(new String("bar"))) {
+//            System.out.println("======== Look in ancestors lookupSuperMethod: " + name);
+//        }
+//        assert RubyGuards.isRubyModule(declaringModule);
+//        assert RubyGuards.isRubyModule(objectMetaClass);
+//
+//        boolean inRefinedMethod = Layouts.MODULE.getFields(declaringModule).isRefinement();
+//
+//        final ArrayList<Assumption> assumptions = new ArrayList<>();
+//        boolean foundDeclaringModule = false;
+//        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
+//            if (!foundDeclaringModule) {
+//                if (!inRefinedMethod) {
+//                    if (module == declaringModule) {
+//                        foundDeclaringModule = true;
+//                    }
+//                } else {
+//                    final ModuleFields fields = Layouts.MODULE.getFields(module);
+//                    assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                    final InternalMethod method = fields.getMethod(name);
+//
+//                    if (method != null && method.isRefined()) {
+//                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(module);
+//                        if (refinements != null && ArrayUtils.contains(refinements, declaringModule)) {
+//                            final MethodLookupResult superMethodInRefinement = lookupSuperMethodNoRefinements(
+//                                    declaringModule,
+//                                    name,
+//                                    declaringModule);
+//                            if (superMethodInRefinement.isDefined()) {
+//                                for (Assumption assumption : superMethodInRefinement.getAssumptions()) {
+//                                    assumptions.add(assumption);
+//                                }
+//                                return new MethodLookupResult(
+//                                        superMethodInRefinement.getMethod(),
+//                                        toArray(assumptions));
+//                            } else if (method.getOriginalMethod() != null) {
+//                                return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                            } else {
+//                                foundDeclaringModule = true;
+//                            }
+//                        }
+//                    }
+//                }
+//            } else {
+//                final ModuleFields fields = Layouts.MODULE.getFields(module);
+//                assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                final InternalMethod method = fields.getMethod(name);
+//                if (method != null) {
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
+//        }
+//
+//        return new MethodLookupResult(null, toArray(assumptions));
+//    }
     @TruffleBoundary
     private static MethodLookupResult lookupSuperMethod(DynamicObject declaringModule, String name,
-            DynamicObject objectMetaClass, DeclarationContext declarationContext) {
+                                                        DynamicObject objectMetaClass, DeclarationContext declarationContext) {
+//        if (name.equals(new String("to_s")) || name.equals(new String("bar"))) {
+//            System.out.println("======== lookupSuperMethod Name: " + name);
+//            System.out.println("======== declaringModule: " + declaringModule);
+//            System.out.println("======== objectMetaClass: " + objectMetaClass);
+//            if (declarationContext != null) {
+//                System.out.println("======== declarationContext refinments: " + declarationContext.getRefinements());
+//            }
+//        }
         assert RubyGuards.isRubyModule(declaringModule);
         assert RubyGuards.isRubyModule(objectMetaClass);
 
-        boolean inRefinedMethod = Layouts.MODULE.getFields(declaringModule).isRefinement();
+//        boolean inRefinedMethod = Layouts.MODULE.getFields(declaringModule).isRefinement();
 
         final ArrayList<Assumption> assumptions = new ArrayList<>();
         boolean foundDeclaringModule = false;
-        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
-            if (!foundDeclaringModule) {
-                if (!inRefinedMethod) {
-                    if (module == declaringModule) {
-                        foundDeclaringModule = true;
-                    }
-                } else {
-                    final ModuleFields fields = Layouts.MODULE.getFields(module);
-                    assumptions.add(fields.getMethodsUnmodifiedAssumption());
-                    final InternalMethod method = fields.getMethod(name);
+        DynamicObject[] refinements;
 
-                    if (method != null && method.isRefined()) {
-                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(module);
-                        if (refinements != null && ArrayUtils.contains(refinements, declaringModule)) {
-                            final MethodLookupResult superMethodInRefinement = lookupSuperMethodNoRefinements(
-                                    declaringModule,
-                                    name,
-                                    declaringModule);
-                            if (superMethodInRefinement.isDefined()) {
-                                for (Assumption assumption : superMethodInRefinement.getAssumptions()) {
-                                    assumptions.add(assumption);
-                                }
-                                return new MethodLookupResult(
-                                        superMethodInRefinement.getMethod(),
-                                        toArray(assumptions));
-                            } else if (method.getOriginalMethod() != null) {
-                                return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
-                            } else {
-                                foundDeclaringModule = true;
-                            }
+        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
+//            DynamicObject[] refinements = null;
+//            if (declarationContext != null) {
+//                refinements = declarationContext.getRefinementsFor(module);
+//            }
+//            if (name.equals(new String("to_s")) || name.equals(new String("bar"))) {
+//                System.out.println("======== Ancestor: " + module);
+//                System.out.println("======== Refinements: " + refinements);
+//            }
+
+            if ((refinements = getRefinementsFor(declarationContext, module)) != null) {//&& ArrayUtils.contains(refinements, declaringModule)) {
+                for (DynamicObject refinement : refinements) {
+
+                    final MethodLookupResult superMethodInRefinement = lookupSuperMethod(declaringModule, name, refinement, null);
+//                    System.out.println("======== SuperMethodInRefinement: " + superMethodInRefinement);
+                    if (superMethodInRefinement.isDefined()) {
+//                        System.out.println("======== SuperMethodInRefinement Defined!: ");
+
+                        for (Assumption assumption : superMethodInRefinement.getAssumptions()) {
+                            assumptions.add(assumption);
                         }
+                        return new MethodLookupResult(
+                                superMethodInRefinement.getMethod(),
+                                toArray(assumptions));
                     }
+//                    else if (method.getOriginalMethod() != null) {
+//                        return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                    } else {
+//                        foundDeclaringModule = true;
+//                    }
+                }
+            }
+
+            if (!foundDeclaringModule) {
+                if (module == declaringModule) {
+                    foundDeclaringModule = true;
                 }
             } else {
                 final ModuleFields fields = Layouts.MODULE.getFields(module);
@@ -537,30 +808,83 @@ public abstract class ModuleOperations {
         }
 
         return new MethodLookupResult(null, toArray(assumptions));
+
+//
+//        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
+//            if (!foundDeclaringModule) {
+//                if (!inRefinedMethod) {
+//                    if (module == declaringModule) {
+//                        foundDeclaringModule = true;
+//                    }
+//                } else {
+//                    final ModuleFields fields = Layouts.MODULE.getFields(module);
+//                    assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                    final InternalMethod method = fields.getMethod(name);
+//
+//                    if (method != null && method.isRefined()) {
+//                        final DynamicObject[] refinements = declarationContext.getRefinementsFor(module);
+//                        if (refinements != null && ArrayUtils.contains(refinements, declaringModule)) {
+//                            final MethodLookupResult superMethodInRefinement = lookupSuperMethodNoRefinements(
+//                                    declaringModule,
+//                                    name,
+//                                    declaringModule);
+//                            if (superMethodInRefinement.isDefined()) {
+//                                for (Assumption assumption : superMethodInRefinement.getAssumptions()) {
+//                                    assumptions.add(assumption);
+//                                }
+//                                return new MethodLookupResult(
+//                                        superMethodInRefinement.getMethod(),
+//                                        toArray(assumptions));
+//                            } else if (method.getOriginalMethod() != null) {
+//                                return new MethodLookupResult(method.getOriginalMethod(), toArray(assumptions));
+//                            } else {
+//                                foundDeclaringModule = true;
+//                            }
+//                        }
+//                    }
+//                }
+//            } else {
+//                final ModuleFields fields = Layouts.MODULE.getFields(module);
+//                assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                final InternalMethod method = fields.getMethod(name);
+//                if (method != null) {
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
+//        }
+//
+//        return new MethodLookupResult(null, toArray(assumptions));
     }
 
-    @TruffleBoundary
-    private static MethodLookupResult lookupSuperMethodNoRefinements(DynamicObject declaringModule, String name,
-            DynamicObject objectMetaClass) {
-        assert RubyGuards.isRubyModule(declaringModule);
-        assert RubyGuards.isRubyModule(objectMetaClass);
+//    @TruffleBoundary
+//    private static MethodLookupResult lookupSuperMethodNoRefinements(DynamicObject declaringModule, String name,
+//            DynamicObject objectMetaClass) {
+//        assert RubyGuards.isRubyModule(declaringModule);
+//        assert RubyGuards.isRubyModule(objectMetaClass);
+//
+//        final ArrayList<Assumption> assumptions = new ArrayList<>();
+//        boolean foundDeclaringModule = false;
+//        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
+//            if (module == declaringModule) {
+//                foundDeclaringModule = true;
+//            } else if (foundDeclaringModule) {
+//                final ModuleFields fields = Layouts.MODULE.getFields(module);
+//                assumptions.add(fields.getMethodsUnmodifiedAssumption());
+//                final InternalMethod method = fields.getMethod(name);
+//                if (method != null) {
+//                    return new MethodLookupResult(method, toArray(assumptions));
+//                }
+//            }
+//        }
+//
+//        return new MethodLookupResult(null, toArray(assumptions));
+//    }
 
-        final ArrayList<Assumption> assumptions = new ArrayList<>();
-        boolean foundDeclaringModule = false;
-        for (DynamicObject module : Layouts.MODULE.getFields(objectMetaClass).ancestors()) {
-            if (module == declaringModule) {
-                foundDeclaringModule = true;
-            } else if (foundDeclaringModule) {
-                final ModuleFields fields = Layouts.MODULE.getFields(module);
-                assumptions.add(fields.getMethodsUnmodifiedAssumption());
-                final InternalMethod method = fields.getMethod(name);
-                if (method != null) {
-                    return new MethodLookupResult(method, toArray(assumptions));
-                }
-            }
+    private static DynamicObject[] getRefinementsFor(DeclarationContext declarationContext, DynamicObject module) {
+        if (declarationContext == null) {
+            return null;
         }
-
-        return new MethodLookupResult(null, toArray(assumptions));
+        return declarationContext.getRefinementsFor(module);
     }
 
     private static Assumption[] toArray(ArrayList<Assumption> assumptions) {
