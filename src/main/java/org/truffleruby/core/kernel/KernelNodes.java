@@ -1554,6 +1554,7 @@ public abstract class KernelNodes {
         @Child private DispatchNode dispatchRespondToMissing;
         @Child private DispatchNode respondToMissingNode;
         @Child private BooleanCastNode booleanCastNode;
+        @Child private ReadCallerFrameNode readCallerFrame = ReadCallerFrameNode.create();
         private final ConditionProfile ignoreVisibilityProfile = ConditionProfile.create();
         private final ConditionProfile isTrueProfile = ConditionProfile.create();
         private final ConditionProfile respondToMissingProfile = ConditionProfile.create();
@@ -1584,6 +1585,9 @@ public abstract class KernelNodes {
             if (ignoreVisibilityProfile.profile(includeProtectedAndPrivate)) {
                 ret = dispatchIgnoreVisibility.doesRespondTo(frame, toJavaString.executeToJavaString(name), object);
             } else {
+                if (toJavaString.executeToJavaString(name).equals("foo")) {
+                    final DeclarationContext declarationContext = RubyArguments.tryGetDeclarationContext(frame);
+                }
                 ret = dispatch.doesRespondTo(frame, toJavaString.executeToJavaString(name), object);
             }
 
@@ -1613,6 +1617,11 @@ public abstract class KernelNodes {
             if (ignoreVisibilityProfile.profile(includeProtectedAndPrivate)) {
                 ret = dispatchIgnoreVisibility.doesRespondTo(frame, toJavaString.executeToJavaString(name), object);
             } else {
+                if (toJavaString.executeToJavaString(name).equals("foo")) {
+                    DeclarationContext context = RubyArguments.getDeclarationContext(readCallerFrame.execute(frame));
+                    final DeclarationContext declarationContext = RubyArguments.tryGetDeclarationContext(frame);
+                    System.out.println("FFF");
+                }
                 ret = dispatch.doesRespondTo(frame, toJavaString.executeToJavaString(name), object);
             }
 
