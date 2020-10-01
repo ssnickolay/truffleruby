@@ -12,6 +12,7 @@ package org.truffleruby.language;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.oracle.truffle.api.CallTarget;
 import org.truffleruby.RubyContext;
 import org.truffleruby.SuppressFBWarnings;
 import org.truffleruby.collections.Memo;
@@ -78,6 +79,11 @@ public class CallStackManager {
     @TruffleBoundary
     public Node getCallerNodeIgnoringSend() {
         return getCallerNode(1, true);
+    }
+
+    @TruffleBoundary
+    public Frame getParentCallTargetFrame(CallTarget callTarget, FrameAccess frameAccess) {
+        return iterateFrames(2, f -> f.getCallTarget().toString() == callTarget.toString(), f -> f.getFrame(frameAccess));
     }
 
     @TruffleBoundary

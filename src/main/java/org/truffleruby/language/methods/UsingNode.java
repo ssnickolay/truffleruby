@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
+import com.oracle.truffle.api.dsl.NodeChild;
 import org.truffleruby.core.array.ArrayUtils;
 import org.truffleruby.core.klass.RubyClass;
 import org.truffleruby.core.module.RubyModule;
@@ -28,23 +29,36 @@ import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameInstance.FrameAccess;
 
 public abstract class UsingNode extends RubyContextNode {
-
-    public abstract void executeUsing(RubyModule module);
+    public abstract void executeUsing(RubyModule module, Frame frame);
 
     @TruffleBoundary
     @Specialization
-    protected void using(RubyModule module) {
+    protected void using(RubyModule module, Frame callerFrame) {
+        //        final Frame callerFrame = getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_WRITE);
+
         if (module instanceof RubyClass) {
             throw new RaiseException(getContext(), coreExceptions().typeErrorWrongArgumentType(module, "Module", this));
         }
 
-        final Frame callerFrame = getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_WRITE);
         final DeclarationContext declarationContext = RubyArguments.getDeclarationContext(callerFrame);
         final Map<RubyModule, RubyModule[]> newRefinements = usingModule(declarationContext, module);
         if (!newRefinements.isEmpty()) {
             DeclarationContext.setRefinements(callerFrame, declarationContext, newRefinements);
         }
     }
+
+//    protected void using(RubyModule module) {
+//        if (module instanceof RubyClass) {
+//            throw new RaiseException(getContext(), coreExceptions().typeErrorWrongArgumentType(module, "Module", this));
+//        }
+//
+//        using(module, getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_WRITE));
+//        final DeclarationContext declarationContext = RubyArguments.getDeclarationContext(callerFrame);
+//        final Map<RubyModule, RubyModule[]> newRefinements = usingModule(declarationContext, module);
+//        if (!newRefinements.isEmpty()) {
+//            DeclarationContext.setRefinements(callerFrame, declarationContext, newRefinements);
+//        }
+//    }
 
     @TruffleBoundary
     private Map<RubyModule, RubyModule[]> usingModule(DeclarationContext declarationContext, RubyModule module) {

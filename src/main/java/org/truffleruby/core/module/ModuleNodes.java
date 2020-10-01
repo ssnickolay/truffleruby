@@ -2168,14 +2168,20 @@ public abstract class ModuleNodes {
                         getContext(),
                         coreExceptions().runtimeError("Module#using is not permitted in methods", this));
             }
-            usingNode.executeUsing(refinementModule);
+            final Frame callerFrame2 = getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_WRITE);
+            final Frame frame = getContext().getCallStack().getParentCallTargetFrame(RubyArguments.getMethod(callerFrame).getCallTarget(), FrameAccess.READ_WRITE);
+
+            usingNode.executeUsing(refinementModule, callerFrame2);
+            if (frame != null) {
+                usingNode.executeUsing(refinementModule, frame);
+            }
             return self;
         }
 
         @TruffleBoundary
         private boolean isCalledFromClassOrModule(Frame callerFrame) {
             final String name = RubyArguments.getMethod(callerFrame).getSharedMethodInfo().getName();
-            return name.startsWith("<class:") || name.startsWith("<module:");
+            return name.startsWith("<class:") || name.startsWith("<module:") || name.equals("<main>") || name.startsWith("<top ");
         }
     }
 

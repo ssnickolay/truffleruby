@@ -68,13 +68,15 @@ public abstract class MainNodes {
                         getContext(),
                         coreExceptions().runtimeError("main.using is permitted only at toplevel", this));
             }
-            usingNode.executeUsing(refinementModule);
+            final Frame callerFrame = getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_WRITE);
+            usingNode.executeUsing(refinementModule, callerFrame);
             return nil;
         }
 
         @TruffleBoundary
         private boolean isCalledFromTopLevel() {
             final Frame callerFrame = getContext().getCallStack().getCallerFrameIgnoringSend(FrameAccess.READ_ONLY);
+//            final Frame mainFrame = getContext().getCallStack().getMainFrame(FrameAccess.READ_ONLY);
             final String name = RubyArguments.getMethod(callerFrame).getSharedMethodInfo().getName();
             return name.equals("<main>") || name.startsWith("<top ");
         }
